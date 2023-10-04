@@ -16,15 +16,16 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.aeyu.mvi_machine.mvi_machine.fragment.MviFragment
-import ru.aeyu.mvi_machine.mvi_machine.MviActions
+import ru.aeyu.mvi_machine.mvi_machine.ViewIntent
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
 import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetError
 import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetNews
 
 abstract class BaseFragment<ViewBindingClass : ViewBinding,
-        UiAction : MviActions,
+        UiAction : ViewIntent,
+        InternalAction: ViewIntent,
         UiState : ViewState,
-        ViewModelClass : BaseViewModel<UiAction, UiState>>
+        ViewModelClass : BaseViewModel<UiAction, InternalAction, UiState>>
     : Fragment(), MviFragment<UiAction, UiState> {
 
     abstract val viewModel: ViewModelClass

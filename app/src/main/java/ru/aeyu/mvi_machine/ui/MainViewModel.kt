@@ -1,38 +1,46 @@
 package ru.aeyu.mvi_machine.ui
 
 import android.app.Application
-import ru.aeyu.mvi_machine.mvi.FormAMviModel
 import ru.aeyu.mvi_machine.mvi.FormAReducer
-import ru.aeyu.mvi_machine.mvi.actions.FormAActions
-import ru.aeyu.mvi_machine.mvi.repository.FormA1GetDataRepository
+import ru.aeyu.mvi_machine.mvi.actions.FormAIntent
+import ru.aeyu.mvi_machine.mvi.actions.FormAInternalIntent
+import ru.aeyu.mvi_machine.mvi.data.repository.FormA1GetDataRepository
+import ru.aeyu.mvi_machine.mvi.data.usecase.GetDataUseCase
 import ru.aeyu.mvi_machine.mvi.states.FormAViewState
-import ru.aeyu.mvi_machine.mvi.usecase.FormA1FetchDataUseCase
+import ru.aeyu.mvi_machine.mvi.middleware.FormA1Middleware
+import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
 import ru.aeyu.mvi_machine.ui.base.BaseViewModel
 
 class MainViewModel(
     app: Application,
-) : BaseViewModel<FormAActions, FormAViewState>(app) {
+) : BaseViewModel<FormAIntent, FormAInternalIntent, FormAViewState>(app) {
 
     override fun processCoroutineErrors(throwable: Throwable) {
         printLog("[MainViewModel] coroutine Err: ${throwable.localizedMessage}")
     }
 
-    override val myMviModel: FormAMviModel = FormAMviModel(FormAReducer())
+    override val initialState: FormAViewState = FormAViewState(isLoading = false, null)
+    override val reducer: Reducer<FormAIntent, FormAInternalIntent, FormAViewState> = FormAReducer()
 
-    private val formA1UseCase: FormA1FetchDataUseCase = FormA1FetchDataUseCase(
-        FormA1GetDataRepository()
+//    override val myMviModel: FormAMviModel = FormAMviModel(FormAReducer())
+
+
+    private val formA1UseCase: FormA1Middleware = FormA1Middleware(
+        GetDataUseCase(FormA1GetDataRepository())
     )
 
-    override suspend fun handleAction(someAction: FormAActions) {
+    override suspend fun handleAction(someAction: FormAIntent) {
         when (someAction) {
-            is FormAActions.OnGetDataClicked -> {
+            is FormAIntent.OnGetDataClicked -> {
                 myMviModel.handleAction(
+                    reducer,
                     dataUseCase = formA1UseCase,
                     userAction = someAction,
                 )
             }
-            else -> {
-                //Игнорируем ненужные действия
+
+            FormAIntent.OnNextFragment -> {
+                myMviModel.dispose()
             }
         }
     }

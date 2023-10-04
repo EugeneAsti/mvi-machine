@@ -4,15 +4,14 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * Интерфейс для UseCase-ов работающих с данными.
- * Здесь [MviActions] тип пользовательских действий
+ * Здесь [ViewIntent] тип пользовательских действий
  * [ViewState] тип возможных состояний
  */
-fun interface SomeUseCase<A: MviActions, S: ViewState> {
+fun interface Middleware<A: ViewIntent, I: ViewIntent, S: ViewState> {
     /** Функция получения данных из некоего источника по какому-то действию пользователя
      * с учетом текущего состояния(если требуется)
-     * @param someAction пользовательское действие, для получения данных из UseCase
      *  @param currentState текущее состояние на момент получения данных.
-     *  @return Flow<A> поток flow типа [MviActions] возможных состояний при получении данных (напр. загрузка, ошибка и т.д.)
+     *  @return Flow<A> поток flow типа [ViewIntent] возможных состояний при получении данных (напр. загрузка, ошибка и т.д.)
      * Например:
      * ```
      * fun fetchData(
@@ -28,5 +27,5 @@ fun interface SomeUseCase<A: MviActions, S: ViewState> {
      *     }
      * ```
      */
-    fun fetchData(someAction: A, currentState: S?) : Flow<A>
+    fun fetchData(userAction: A, currentState: S?) : Flow<I>
 }
