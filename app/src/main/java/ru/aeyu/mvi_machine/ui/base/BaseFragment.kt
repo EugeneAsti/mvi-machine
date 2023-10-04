@@ -15,9 +15,11 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
-import ru.aeyu.mvi_machine.mvi_machine.MviFragment
+import ru.aeyu.mvi_machine.mvi_machine.fragment.MviFragment
 import ru.aeyu.mvi_machine.mvi_machine.MviActions
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
+import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetError
+import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetNews
 
 abstract class BaseFragment<ViewBindingClass : ViewBinding,
         UiAction : MviActions,
@@ -69,7 +71,7 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.myMviModel.uiState.collect { state ->
-                    handleState(state)
+                    onGetState.handleState(state)
                 }
             }
         }
@@ -79,7 +81,7 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.myMviModel.uiError.collect { throwable ->
-                    handleError(throwable)
+                    onGetError.handleError(throwable)
                 }
             }
         }
@@ -89,13 +91,11 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.myMviModel.uiNews.collect { newsMessage ->
-                    handleNews(newsMessage)
+                    onGetNews.handleNews(newsMessage)
                 }
             }
         }
     }
-
-
 
     override fun onDestroyView() {
         printLog("[BaseFragment] onDestroyView")
@@ -114,10 +114,16 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
         inputMethodManager.hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
-    override fun setAction(newAction: UiAction) {
+    fun sendAction(newAction: UiAction) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.handleAction(newAction)
         }
+    }
+    override val onGetError: OnGetError = OnGetError {
+        showErrorDialog("Ошибка! ${it.localizedMessage}")
+    }
+    override val onGetNews: OnGetNews = OnGetNews {
+        showSnackBar(it)
     }
 
 }

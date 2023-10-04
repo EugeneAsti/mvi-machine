@@ -1,6 +1,5 @@
 package ru.aeyu.mvi_machine.ui
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import ru.aeyu.mvi_machine.R
 import ru.aeyu.mvi_machine.databinding.FragmentMainBinding
 import ru.aeyu.mvi_machine.mvi.actions.FormAActions
 import ru.aeyu.mvi_machine.mvi.states.FormAViewState
+import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetState
 import ru.aeyu.mvi_machine.ui.base.BaseFragment
 import kotlin.random.Random
 
@@ -39,7 +39,7 @@ class MainFragment
         btn = binding.btnStopCore
         textView = binding.someText
         btn.setOnClickListener {
-            setAction(FormAActions.OnGetDataClicked(Random(2).nextInt(100)))
+            sendAction(FormAActions.OnGetDataClicked(Random(2).nextInt(100)))
         }
         binding.btnOpenNextFragment.setOnClickListener {
             requireActivity().supportFragmentManager.commit {
@@ -49,17 +49,7 @@ class MainFragment
             }
         }
     }
-
-
-    override fun handleError(throwable: Throwable) {
-        showAlertDialog("Ошибка! ${throwable.localizedMessage}")
-    }
-
-    override fun handleNews(newsMessage: String) {
-        showSnackBar(newsMessage)
-    }
-
-    override fun handleState(uiState: FormAViewState) {
+    override val onGetState: OnGetState<FormAViewState> = OnGetState { uiState ->
         binding.progressCircular.isVisible = uiState.isLoading
         btn.isClickable = !uiState.isLoading
         binding.someText.text = if (uiState.dataObject == null)
@@ -67,14 +57,4 @@ class MainFragment
         else
             uiState.dataObject.comment
     }
-
-    private fun showAlertDialog(message: String) {
-        AlertDialog.Builder(requireContext()).apply {
-            setTitle("Ошибка")
-            setMessage(message)
-            setNegativeButton("Понятно", null)
-            setCancelable(false)
-        }.show()
-    }
-
 }

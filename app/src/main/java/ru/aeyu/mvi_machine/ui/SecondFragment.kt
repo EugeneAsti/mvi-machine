@@ -9,16 +9,13 @@ import androidx.fragment.app.activityViewModels
 import ru.aeyu.mvi_machine.databinding.FragmentSecondBinding
 import ru.aeyu.mvi_machine.mvi.actions.FormBActions
 import ru.aeyu.mvi_machine.mvi.states.FormBViewState
+import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetState
 import ru.aeyu.mvi_machine.ui.base.BaseFragment
 
 class SecondFragment : BaseFragment<FragmentSecondBinding,
         FormBActions,
         FormBViewState,
         SecondViewModel>() {
-    override fun handleState(uiState: FormBViewState) {
-        binding.progressCircular.isVisible = uiState.isLoading
-        binding.btnTestToast.isClickable = !uiState.isLoading
-    }
 
     override val viewModel: SecondViewModel by activityViewModels()
 
@@ -28,18 +25,15 @@ class SecondFragment : BaseFragment<FragmentSecondBinding,
         b: Boolean
     ): FragmentSecondBinding = FragmentSecondBinding.inflate(inflater, container, false)
 
-    override fun handleError(throwable: Throwable) {
-        showErrorDialog("SecondFragment ERR! ${throwable.message}")
-    }
-
-    override fun handleNews(newsMessage: String) {
-        showSnackBar(newsMessage)
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+      override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         binding.btnTestToast.setOnClickListener {
-            setAction(FormBActions.OnToastButtonClicked)
+            sendAction(FormBActions.OnToastButtonClicked)
         }
     }
+    override val onGetState: OnGetState<FormBViewState> = OnGetState {uiState ->
+        binding.progressCircular.isVisible = uiState.isLoading
+        binding.btnTestToast.isClickable = !uiState.isLoading
+    }
+
 }
