@@ -6,11 +6,13 @@ import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import ru.aeyu.mvi_machine.mvi_machine.MviModel
-import ru.aeyu.mvi_machine.mvi_machine.MviActions
+import ru.aeyu.mvi_machine.mvi_machine.ViewIntent
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
+import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
 
 abstract class BaseViewModel<
-        UiAction : MviActions,
+        UiAction : ViewIntent,
+        InternalAction : ViewIntent,
         UiState : ViewState>(
     app: Application,
 ) : AndroidViewModel(app) {
@@ -25,7 +27,10 @@ abstract class BaseViewModel<
 
     protected abstract fun processCoroutineErrors(throwable: Throwable)
 
-    abstract val myMviModel: MviModel<UiAction, UiState>
+    protected abstract val initialState: UiState
+    protected abstract val reducer: Reducer<UiAction, InternalAction, UiState>
+    val myMviModel: MviModel<UiAction, InternalAction, UiState> by lazy {MviModel(initialState)}
+
 
     protected fun printLog(message: String) {
 //        if (BuildConfig.DEBUG)

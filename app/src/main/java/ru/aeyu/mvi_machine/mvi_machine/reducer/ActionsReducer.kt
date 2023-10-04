@@ -1,11 +1,11 @@
 package ru.aeyu.mvi_machine.mvi_machine.reducer
 
-import ru.aeyu.mvi_machine.mvi_machine.MviActions
+import ru.aeyu.mvi_machine.mvi_machine.ViewIntent
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
 
-fun interface ActionsReducer<A : MviActions, S : ViewState> {
+fun interface ActionsReducer<S : ViewState> {
     /** Данная функция возвращает состояние на основе текущего в зависимости от каких-то
-     * внутренних действий типа [MviActions]
+     * внутренних действий типа [ViewIntent]
      * @param curState текущее состояние
      * @param someAction внутреннее действие
      * @param onError callback для отправки ошибок пользователю
@@ -14,7 +14,7 @@ fun interface ActionsReducer<A : MviActions, S : ViewState> {
      */
     fun reduce(
         curState: S,
-        someAction: A,
+        someAction: ViewIntent,
         onError: ((Throwable) -> Unit)?,
         onNews: ((String) -> Unit)?
     ): S

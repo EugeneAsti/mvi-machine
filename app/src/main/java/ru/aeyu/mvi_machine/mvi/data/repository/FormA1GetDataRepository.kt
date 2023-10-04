@@ -1,4 +1,4 @@
-package ru.aeyu.mvi_machine.mvi.repository
+package ru.aeyu.mvi_machine.mvi.data.repository
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -10,9 +10,10 @@ import kotlin.random.Random
 
 class FormA1GetDataRepository {
 
-    fun getFormA1Data(id: Int): Flow<Result<FormA1DataObject>> = flow<Result<FormA1DataObject>> {
+    fun getFormA1Data(id: Int): Flow<Result<FormA1DataObject>> = flow {
         delay(1500)
         val random = Random(System.nanoTime()).nextInt(150)
+        println("random number $random")
         if (random <= 25)
             throw Exception("Test Error!!!")
         else
