@@ -4,13 +4,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
-import ru.aeyu.mvi_machine.mvi.models.FormADataObject
+import ru.aeyu.mvi_machine.mvi.models.FormA1DataObject
 import java.lang.Exception
 import kotlin.random.Random
 
-class FormAGetDataRepository {
+class FormA1GetDataRepository {
 
-    fun getFormA1Data(id: Int): Flow<Result<FormADataObject>> = flow<Result<FormADataObject>> {
+    fun getFormA1Data(id: Int): Flow<Result<FormA1DataObject>> = flow<Result<FormA1DataObject>> {
         delay(1500)
         val random = Random(System.nanoTime()).nextInt(150)
         if (random <= 25)
@@ -18,7 +18,7 @@ class FormAGetDataRepository {
         else
             emit(
                 Result.success(
-                    FormADataObject(id, "Data Id: $id ", listOf(3, 40, 10))
+                    FormA1DataObject(id, "Data Id: $id ", listOf(3, 40, 10))
                 )
             )
     }.catch { throwable ->

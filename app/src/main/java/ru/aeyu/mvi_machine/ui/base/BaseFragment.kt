@@ -16,15 +16,13 @@ import androidx.viewbinding.ViewBinding
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import ru.aeyu.mvi_machine.mvi_machine.MviFragment
-import ru.aeyu.mvi_machine.mvi_machine.MviInternalIntent
-import ru.aeyu.mvi_machine.mvi_machine.MviUserIntent
+import ru.aeyu.mvi_machine.mvi_machine.MviActions
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
 
 abstract class BaseFragment<ViewBindingClass : ViewBinding,
-        UiAction : MviUserIntent,
-        UiInternalAction : MviInternalIntent,
+        UiAction : MviActions,
         UiState : ViewState,
-        ViewModelClass : BaseViewModel<UiAction, UiInternalAction, UiState>>
+        ViewModelClass : BaseViewModel<UiAction, UiState>>
     : Fragment(), MviFragment<UiAction, UiState> {
 
     abstract val viewModel: ViewModelClass
@@ -64,6 +62,7 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
         printLog("onViewCreated")
         startCollectUiStates()
         startCollectUiErrors()
+        startCollectUiNews()
     }
 
     private fun startCollectUiStates() {
@@ -86,6 +85,18 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
         }
     }
 
+    private fun startCollectUiNews() {
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.myMviModel.uiNews.collect { newsMessage ->
+                    handleNews(newsMessage)
+                }
+            }
+        }
+    }
+
+
+
     override fun onDestroyView() {
         printLog("[BaseFragment] onDestroyView")
         _binding = null
@@ -105,7 +116,7 @@ abstract class BaseFragment<ViewBindingClass : ViewBinding,
 
     override fun setAction(newAction: UiAction) {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.handleUserActions(newAction)
+            viewModel.handleAction(newAction)
         }
     }
 

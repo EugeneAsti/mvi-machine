@@ -28,13 +28,13 @@ import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
  * Информационные сообщения выпускаются в [uiNews]
  *
  * Чтобы получить новое состояние в котором могут быть также и данные, нужно вызвать функцию
- * [handleUserAction] она выпустит новое состояние в [uiState], если есть ошибка,
+ * [handleAction] она выпустит новое состояние в [uiState], если есть ошибка,
  * то ее можно поймать в [uiError], а различные сообщения для пользователя, не связанные с состоянием
  * могут быть получены при прослушивании [uiNews]
  *
  */
-abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>(
-    private val reducer: Reducer<A, I, S>,
+abstract class MviModel<A : MviActions, S : ViewState>(
+    private val reducer: Reducer<A, S>,
     initialState: S
 ) {
 
@@ -50,6 +50,7 @@ abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>
 
 
     private val _uiState: MutableStateFlow<S> = MutableStateFlow(initialState)
+
     /**
      * Здесь можно отловить состояния испускаемые редуктором [Reducer].
      */
@@ -57,6 +58,7 @@ abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>
     private val currentState: S = uiState.value
 
     private val _uiError: MutableSharedFlow<Throwable> = MutableSharedFlow()
+
     /**
      * Здесь можно отловить возникающие в процессе получения данных ошибки.
      */
@@ -64,6 +66,7 @@ abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>
 
 
     private val _uiNews: MutableSharedFlow<String> = MutableSharedFlow()
+
     /**
      * Здесь можно отловить информационные текстовые сообщения.
      */
@@ -78,8 +81,8 @@ abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>
     /**
      * Выполняем эту функцию, при получении пользовательских действий
      */
-    fun handleUserAction(
-        dataUseCase: SomeUseCase<A, I, S>?,
+    fun handleAction(
+        dataUseCase: SomeUseCase<A, S>?,
         userAction: A
     ) {
         mviCoroutineScope.launch {
@@ -94,27 +97,27 @@ abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>
     /**
      * Принудительное завершение обработки пользовательских действий
      */
-    fun dispose(){
+    fun dispose() {
         try {
             mviCoroutineScope.cancel("Dispose method called")
-        }catch (iLs: IllegalStateException){
+        } catch (iLs: IllegalStateException) {
             iLs.printStackTrace()
             printLog("MviModel.dispose() err: ${iLs.localizedMessage}")
         }
     }
 
-    private suspend fun sendNewState(newState: S){
+    private suspend fun sendNewState(newState: S) {
         _uiState.emit(newState)
     }
 
     private fun onUserAction(
-        userUseCase: SomeUseCase<A, I, S>?,
-        userAction: A,
+        userUseCase: SomeUseCase<A, S>?,
+        someAction: A,
         currentState: S,
     ): Flow<S> =
-        userUseCase?.fetchData(userAction, currentState)?.map { internalAction ->
-            reducer.internalActionsReducer.reduce(currentState, internalAction, onError, onNews)
-        } ?: flowOf(reducer.userActionReducer.reduce(currentState, userAction, onError, onNews))
+        userUseCase?.fetchData(someAction, currentState)?.map { internalAction ->
+            reducer.actionsReducer.reduce(currentState, internalAction, onError, onNews)
+        } ?: flowOf(reducer.actionsReducer.reduce(currentState, someAction, onError, onNews))
 
     private val onError: ((Throwable) -> Unit) = { throwable ->
         mviCoroutineScope.launch(mainContext) {
@@ -123,7 +126,7 @@ abstract class MviModel<A : MviUserIntent, I : MviInternalIntent, S : ViewState>
         }
     }
 
-    private val onNews: (String) -> Unit = {news ->
+    private val onNews: (String) -> Unit = { news ->
         mviCoroutineScope.launch(mainContext) {
             printLog("Передано сообщение: $news")
             _uiNews.emit(news)
