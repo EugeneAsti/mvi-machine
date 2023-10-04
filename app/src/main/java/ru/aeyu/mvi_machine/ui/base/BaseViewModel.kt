@@ -5,14 +5,12 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
-import ru.aeyu.mvi_machine.mvi_machine.MviInternalIntent
 import ru.aeyu.mvi_machine.mvi_machine.MviModel
-import ru.aeyu.mvi_machine.mvi_machine.MviUserIntent
+import ru.aeyu.mvi_machine.mvi_machine.MviActions
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
 
 abstract class BaseViewModel<
-        UiAction : MviUserIntent,
-        UiInternalAction : MviInternalIntent,
+        UiAction : MviActions,
         UiState : ViewState>(
     app: Application,
 ) : AndroidViewModel(app) {
@@ -27,14 +25,14 @@ abstract class BaseViewModel<
 
     protected abstract fun processCoroutineErrors(throwable: Throwable)
 
-    abstract val myMviModel: MviModel<UiAction, UiInternalAction, UiState>
+    abstract val myMviModel: MviModel<UiAction, UiState>
 
     protected fun printLog(message: String) {
 //        if (BuildConfig.DEBUG)
         Log.i("!!!###!!!", message)
     }
 
-    abstract suspend fun handleUserActions(userAction: UiAction)
+    abstract suspend fun handleAction(someAction: UiAction)
 
     override fun onCleared() {
         printLog("MainViewModel.onCleared()")

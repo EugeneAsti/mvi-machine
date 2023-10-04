@@ -1,9 +1,9 @@
 package ru.aeyu.mvi_machine.mvi.states
 
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
-import ru.aeyu.mvi_machine.mvi.models.FormADataObject
+import ru.aeyu.mvi_machine.mvi.models.FormA1DataObject
 
-data class FormA1ViewState(
+data class FormAViewState(
     val isLoading: Boolean,
-    val dataObject: FormADataObject?
+    val dataObject: FormA1DataObject?
 ) : ViewState
