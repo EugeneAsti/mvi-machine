@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
  * Здесь [MviActions] тип пользовательских действий
  * [ViewState] тип возможных состояний
  */
-interface SomeUseCase<A: MviActions, S: ViewState> {
+fun interface SomeUseCase<A: MviActions, S: ViewState> {
     /** Функция получения данных из некоего источника по какому-то действию пользователя
      * с учетом текущего состояния(если требуется)
      * @param someAction пользовательское действие, для получения данных из UseCase
