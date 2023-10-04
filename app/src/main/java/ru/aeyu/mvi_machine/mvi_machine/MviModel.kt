@@ -21,7 +21,6 @@ import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
 /**
  * Ядро обработки пользовательских или внутренних действий и выдачи состояния.
  * Чтобы начать с ним работать, необходимо наследоваться от данного класса.
- * @param reducer экземпляр класса "редуктора" обрабатывающией действия и возвращающий состояния
  * @param initialState начальное состояние
  * Cостояния выпускаются в [uiState]
  * Ошибки выпускаются в [uiError]
@@ -33,8 +32,7 @@ import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
  * могут быть получены при прослушивании [uiNews]
  *
  */
-abstract class MviModel<A : MviActions, S : ViewState>(
-    private val reducer: Reducer<A, S>,
+class MviModel<A : ViewIntent, I : ViewIntent, S : ViewState>(
     initialState: S
 ) {
 
@@ -44,7 +42,6 @@ abstract class MviModel<A : MviActions, S : ViewState>(
         }
 
     private val mainContext = Dispatchers.Main + mviCoroutineExceptionHandler
-    private val ioContext = Dispatchers.IO + mviCoroutineExceptionHandler
     private val mviCoroutineScope =
         CoroutineScope(mainContext + SupervisorJob() + mviCoroutineExceptionHandler)
 
@@ -82,11 +79,12 @@ abstract class MviModel<A : MviActions, S : ViewState>(
      * Выполняем эту функцию, при получении пользовательских действий
      */
     fun handleAction(
-        dataUseCase: SomeUseCase<A, S>?,
-        userAction: A
+        reducer: Reducer<A, I, S>,
+        dataUseCase: Middleware<A, I, S>?,
+        userAction: A,
     ) {
         mviCoroutineScope.launch {
-            onUserAction(dataUseCase, userAction, currentState)
+            onUserAction(reducer, dataUseCase, userAction, currentState)
                 .collect { newState ->
                     printLog("handleUserAction.State: $newState")
                     sendNewState(newState)
@@ -111,11 +109,12 @@ abstract class MviModel<A : MviActions, S : ViewState>(
     }
 
     private fun onUserAction(
-        userUseCase: SomeUseCase<A, S>?,
+        reducer: Reducer<A, I, S>,
+        middleware: Middleware<A, I, S>?,
         someAction: A,
         currentState: S,
     ): Flow<S> =
-        userUseCase?.fetchData(someAction, currentState)?.map { internalAction ->
+        middleware?.fetchData(someAction, currentState)?.map { internalAction ->
             reducer.actionsReducer.reduce(currentState, internalAction, onError, onNews)
         } ?: flowOf(reducer.actionsReducer.reduce(currentState, someAction, onError, onNews))
 
@@ -137,6 +136,4 @@ abstract class MviModel<A : MviActions, S : ViewState>(
 //        if (BuildConfig.DEBUG)
         Log.i("!!!###!!!", message)
     }
-
-    protected fun getReducer() = reducer
 }

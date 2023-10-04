@@ -1,39 +1,54 @@
 package ru.aeyu.mvi_machine.mvi
 
-import ru.aeyu.mvi_machine.mvi.actions.FormAActions
+import ru.aeyu.mvi_machine.mvi.actions.FormAIntent
+import ru.aeyu.mvi_machine.mvi.actions.FormAInternalIntent
 import ru.aeyu.mvi_machine.mvi.states.FormAViewState
-import ru.aeyu.mvi_machine.mvi_machine.reducer.ActionsReducer
 import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
 
-class FormAReducer : Reducer<FormAActions, FormAViewState>() {
-    override val actionsReducer: ActionsReducer<FormAActions, FormAViewState> =
-        ActionsReducer { curState, internalAction, onError, onNews ->
-            when (internalAction) {
-                is FormAActions.OnGetDataSuccess ->
-                    curState.copy(isLoading = false, dataObject = internalAction.newData)
+class FormAReducer : Reducer<FormAIntent, FormAInternalIntent, FormAViewState>() {
 
-                is FormAActions.OnFailure -> {
-                    if (onError != null) {
-                        onError(internalAction.throwable)
-                    }
-                    curState.copy(isLoading = false)
+    override fun handleInternalIntent(
+        curState: FormAViewState,
+        internalAction: FormAInternalIntent,
+        onError: ((Throwable) -> Unit)?,
+        onNews: ((String) -> Unit)?
+    ): FormAViewState {
+        return when(internalAction) {
+            is FormAInternalIntent.OnGetDataSuccess ->
+                curState.copy(isLoading = false, dataObject = internalAction.newData)
+
+            is FormAInternalIntent.OnFailure -> {
+                if (onError != null) {
+                    onError(internalAction.throwable)
                 }
+                curState.copy(isLoading = false)
+            }
 
-                FormAActions.OnLoad ->
-                    curState.copy(isLoading = true)
+            FormAInternalIntent.OnLoad ->
+                curState.copy(isLoading = true)
 
-                FormAActions.OnLoadEnd ->
-                    curState.copy(isLoading = false)
+            FormAInternalIntent.OnLoadEnd ->
+                curState.copy(isLoading = false)
+            FormAInternalIntent.Idle -> curState
+        }
+    }
 
-                is FormAActions.OnGetDataClicked -> {
-                    curState.copy(
-                        isLoading = false,
-                        dataObject = null
-                    )
-                }
-                FormAActions.OnNextFragment -> {
-                    curState.copy()
-                }
+    override fun handleUserIntent(
+        curState: FormAViewState,
+        userAction: FormAIntent,
+        onError: ((Throwable) -> Unit)?,
+        onNews: ((String) -> Unit)?
+    ): FormAViewState {
+        return when(userAction){
+            is FormAIntent.OnGetDataClicked -> {
+                curState.copy(
+                    isLoading = false,
+                    dataObject = null
+                )
+            }
+            FormAIntent.OnNextFragment -> {
+                curState
             }
         }
+    }
 }

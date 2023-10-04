@@ -11,7 +11,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.commit
 import ru.aeyu.mvi_machine.R
 import ru.aeyu.mvi_machine.databinding.FragmentMainBinding
-import ru.aeyu.mvi_machine.mvi.actions.FormAActions
+import ru.aeyu.mvi_machine.mvi.actions.FormAIntent
+import ru.aeyu.mvi_machine.mvi.actions.FormAInternalIntent
 import ru.aeyu.mvi_machine.mvi.states.FormAViewState
 import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetState
 import ru.aeyu.mvi_machine.ui.base.BaseFragment
@@ -20,7 +21,8 @@ import kotlin.random.Random
 
 class MainFragment
     : BaseFragment<FragmentMainBinding,
-        FormAActions,
+        FormAIntent,
+        FormAInternalIntent,
         FormAViewState,
         MainViewModel>() {
 
@@ -39,7 +41,7 @@ class MainFragment
         btn = binding.btnStopCore
         textView = binding.someText
         btn.setOnClickListener {
-            sendAction(FormAActions.OnGetDataClicked(Random(2).nextInt(100)))
+            sendAction(FormAIntent.OnGetDataClicked(Random(System.nanoTime()).nextInt(100)))
         }
         binding.btnOpenNextFragment.setOnClickListener {
             requireActivity().supportFragmentManager.commit {
@@ -49,6 +51,7 @@ class MainFragment
             }
         }
     }
+
     override val onGetState: OnGetState<FormAViewState> = OnGetState { uiState ->
         binding.progressCircular.isVisible = uiState.isLoading
         btn.isClickable = !uiState.isLoading
@@ -56,5 +59,10 @@ class MainFragment
             ""
         else
             uiState.dataObject.comment
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
     }
 }
