@@ -139,16 +139,4 @@ abstract class MviModel<A : MviActions, S : ViewState>(
     }
 
     protected fun getReducer() = reducer
-
-//    fun onUserAction(
-//        userUseCase: SomeUseCase<A, I, S>?,
-//        userAction: A,
-//        currentState: S,
-//        onError: ((Throwable) -> Unit)?
-//    ): Flow<S> =
-//        userUseCase?.fetchData(userAction, currentState)?.map { internalAction ->
-//            reducer.reduce(currentState, internalAction, onError)
-//        } ?: flowOf(reducer.reduce(currentState, userAction, onError))
-
-
 }
