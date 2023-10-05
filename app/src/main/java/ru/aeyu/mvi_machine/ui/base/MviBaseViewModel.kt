@@ -10,7 +10,7 @@ import ru.aeyu.mvi_machine.mvi_machine.ViewIntent
 import ru.aeyu.mvi_machine.mvi_machine.ViewState
 import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
 
-abstract class BaseViewModel<
+abstract class MviBaseViewModel<
         UiAction : ViewIntent,
         InternalAction : ViewIntent,
         UiState : ViewState>(
@@ -40,7 +40,7 @@ abstract class BaseViewModel<
     abstract suspend fun handleAction(someAction: UiAction)
 
     override fun onCleared() {
-        printLog("MainViewModel.onCleared()")
+        printLog("MainViewModelMvi.onCleared()")
         myMviModel.dispose()
         super.onCleared()
     }

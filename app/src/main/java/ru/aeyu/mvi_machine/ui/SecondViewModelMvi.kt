@@ -6,14 +6,14 @@ import ru.aeyu.mvi_machine.mvi.actions.FormBIntent
 import ru.aeyu.mvi_machine.mvi.actions.FormBInternalIntent
 import ru.aeyu.mvi_machine.mvi.states.FormBViewState
 import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
-import ru.aeyu.mvi_machine.ui.base.BaseViewModel
+import ru.aeyu.mvi_machine.ui.base.MviBaseViewModel
 
-class SecondViewModel(
+class SecondViewModelMvi(
     app: Application,
-) : BaseViewModel<FormBIntent, FormBInternalIntent, FormBViewState>(app) {
+) : MviBaseViewModel<FormBIntent, FormBInternalIntent, FormBViewState>(app) {
 
     override fun processCoroutineErrors(throwable: Throwable) {
-        printLog("[MainViewModel] coroutine Err: ${throwable.localizedMessage}")
+        printLog("[MainViewModelMvi] coroutine Err: ${throwable.localizedMessage}")
     }
 
     override val initialState: FormBViewState = FormBViewState(false)

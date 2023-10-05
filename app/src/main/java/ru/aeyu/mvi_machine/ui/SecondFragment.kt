@@ -11,15 +11,15 @@ import ru.aeyu.mvi_machine.mvi.actions.FormBIntent
 import ru.aeyu.mvi_machine.mvi.actions.FormBInternalIntent
 import ru.aeyu.mvi_machine.mvi.states.FormBViewState
 import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetState
-import ru.aeyu.mvi_machine.ui.base.BaseFragment
+import ru.aeyu.mvi_machine.ui.base.MviBaseFragment
 
-class SecondFragment : BaseFragment<FragmentSecondBinding,
+class SecondFragment : MviBaseFragment<FragmentSecondBinding,
         FormBIntent,
         FormBInternalIntent,
         FormBViewState,
-        SecondViewModel>() {
+        SecondViewModelMvi>() {
 
-    override val viewModel: SecondViewModel by activityViewModels()
+    override val viewModel: SecondViewModelMvi by activityViewModels()
 
     override fun getBindingInstance(
         inflater: LayoutInflater,

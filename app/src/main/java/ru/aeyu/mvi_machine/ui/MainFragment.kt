@@ -15,20 +15,20 @@ import ru.aeyu.mvi_machine.mvi.actions.FormAIntent
 import ru.aeyu.mvi_machine.mvi.actions.FormAInternalIntent
 import ru.aeyu.mvi_machine.mvi.states.FormAViewState
 import ru.aeyu.mvi_machine.mvi_machine.fragment.OnGetState
-import ru.aeyu.mvi_machine.ui.base.BaseFragment
+import ru.aeyu.mvi_machine.ui.base.MviBaseFragment
 import kotlin.random.Random
 
 
 class MainFragment
-    : BaseFragment<FragmentMainBinding,
+    : MviBaseFragment<FragmentMainBinding,
         FormAIntent,
         FormAInternalIntent,
         FormAViewState,
-        MainViewModel>() {
+        MainViewModelMvi>() {
 
     private lateinit var textView: TextView
     private lateinit var btn: Button
-    override val viewModel: MainViewModel by activityViewModels()
+    override val viewModel: MainViewModelMvi by activityViewModels()
 
     override fun getBindingInstance(
         inflater: LayoutInflater,
