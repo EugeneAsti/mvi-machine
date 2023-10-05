@@ -6,6 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +16,7 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import ru.aeyu.mvi_machine.mvi_machine.reducer.Reducer
 
@@ -62,12 +64,12 @@ class MviModel<A : ViewIntent, I : ViewIntent, S : ViewState>(
     val uiError: SharedFlow<Throwable> = _uiError.asSharedFlow()
 
 
-    private val _uiNews: MutableSharedFlow<String> = MutableSharedFlow()
+    private val _uiNews: Channel<String> = Channel()
 
     /**
      * Здесь можно отловить информационные текстовые сообщения.
      */
-    val uiNews: SharedFlow<String> = _uiNews.asSharedFlow()
+    val uiNews: Flow<String> = _uiNews.receiveAsFlow()
 
     private fun processCoroutineErrors(throwable: Throwable) {
         mviCoroutineScope.launch {
@@ -126,10 +128,8 @@ class MviModel<A : ViewIntent, I : ViewIntent, S : ViewState>(
     }
 
     private val onNews: (String) -> Unit = { news ->
-        mviCoroutineScope.launch(mainContext) {
-            printLog("Передано сообщение: $news")
-            _uiNews.emit(news)
-        }
+        printLog("Передано сообщение: $news")
+        _uiNews.trySend(news)
     }
 
     protected fun printLog(message: String) {
